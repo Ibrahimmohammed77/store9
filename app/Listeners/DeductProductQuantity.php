@@ -1,0 +1,57 @@
+<?php
+
+namespace App\Listeners;
+
+use App\Events\OrderCreated;
+use App\Facades\Cart;
+use App\Models\Product;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\DB;
+use Throwable;
+
+class DeductProductQuantity
+{
+    /**
+     * Create the event listener.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        //
+    }
+
+    /**
+     * Handle the event.
+     *
+     * @param  object  $event
+     * @return void
+     */
+    public function handle(OrderCreated $event)
+    {
+        // this listener make deduct quntity from product when 
+        //
+        $order=$event->order;
+        try {
+            foreach ($order->products as $product) {
+                $product->decrement('quantity',$product->pivot->quantity);
+                // Product::where('id', $product->product_id)
+                // ->update([
+                //     'quantity' =>DB::raw("quantity - {$product->quantity}"),
+                // ]);
+            }
+        } catch (Throwable $e) {
+            return $e->getMessage();
+        }
+    }
+    //  public function handle()
+    // {
+    //     foreach (Cart::get() as $item) {
+    //         Product::where('id', $item->product_id)
+    //         ->update([
+    //             'quantity' =>DB::raw("quantity - {$item->quantity}"),
+    //         ]);
+    //     }
+    // }
+}

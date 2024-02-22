@@ -1,0 +1,56 @@
+$table->id();
+$table->string('name');
+$table->string('email')->unique();
+$table->string('username')->unique();
+$table->string('password');
+$table->string('phone_number')->unique();
+$table->boolean('super_admin')->default(false);
+$table->enum('status',['active', 'inactive'])->default('active');
+
+class Admin extends User {
+    use HasFactory,Notifiable;
+    protected $fillable=[
+        'name', 'email', 'password', 'phone_number', 'super_admin','status'
+    ];
+}
+
+config/auth.php
+[
+    'guards'=>[
+          'admin'=>[
+            'driver'=>'session',
+            'password'=>'admins'
+        ],
+        'user'=>[
+            'driver'=>'session',
+            'password'=>'users'
+        ]
+    ]
+]
+
+ 'providers' => [
+         'admin' => [
+             'driver' => 'eloquent',
+             'table' => 'App\Models\Admin::class',
+         ],
+
+        'users' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\User::class,
+        ],
+
+    ],
+       'passwords' => [
+        'users' => [
+            'provider' => 'users',
+            'table' => 'password_resets',
+            'expire' => 60,
+            'throttle' => 60,
+        ], 
+           'users' => [
+            'provider' => 'admins',
+            'table' => 'password_resets',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+    ],
